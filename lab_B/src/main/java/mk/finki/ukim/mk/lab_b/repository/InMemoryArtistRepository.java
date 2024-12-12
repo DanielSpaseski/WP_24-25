@@ -9,7 +9,7 @@ import java.util.*;
 
 
 @Repository
-public class ArtistRepository {
+public class InMemoryArtistRepository {
     public List<Artist> findAll(){
         return DataHolder.artists;
     }

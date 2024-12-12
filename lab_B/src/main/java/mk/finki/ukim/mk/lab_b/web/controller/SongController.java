@@ -1,5 +1,6 @@
 package mk.finki.ukim.mk.lab_b.web.controller;
 
+import jakarta.servlet.http.HttpSession;
 import mk.finki.ukim.mk.lab_b.model.Album;
 import org.springframework.ui.Model;
 import mk.finki.ukim.mk.lab_b.model.Song;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/songs")
@@ -22,25 +24,31 @@ public class SongController {
     }
 
     @GetMapping
-    public String getSongsPage(@RequestParam(required = false) String error, Model model){
-        List<Song> songs = songService.listSongs();
-        model.addAttribute("songs",songs);
+    public String getSongsPage(@RequestParam(required = false) String error, Model model,
+                               @RequestParam(required = false) Long albumID) {
+        if(albumID == null || albumID == -1){
+            model.addAttribute("songs",songService.listSongs());
+        }
+        else{
+            model.addAttribute("songs",songService.findAllByAlbum_Id(albumID));
+        }
         model.addAttribute("error",error);
+        model.addAttribute("albums",albumService.findAll());
 
         return "listSongs";
     }
-
     @PostMapping("/add")
-    public String saveSong(@RequestParam(required = false) Long id,
-                           @RequestParam String title,
-                           @RequestParam String trackId,
-                           @RequestParam String genre,
-                           @RequestParam int releaseYear,
-                           @RequestParam Long albumId){
-        songService.saveSong(id,title,trackId,genre,releaseYear,albumId);
+    public String saveSong(@RequestParam (required = false) Long id,
+                               @RequestParam String title,
+                               @RequestParam String trackId,
+                               @RequestParam String genre,
+                               @RequestParam int releaseYear,
+                               @RequestParam Long albumId) {
+
+        songService.save(id,title,trackId,genre,releaseYear,albumId);
+
         return "redirect:/songs";
     }
-
 
     @PostMapping("delete/{id}")
     public String deleteSong(@PathVariable Long id){
@@ -51,28 +59,27 @@ public class SongController {
     @GetMapping("/edit-form/{id}")
     public String getEditSongForm(Model model,
                                   @PathVariable Long id){
-        if(songService.findById(id).isPresent()){
-            Song song = songService.findById(id).get();
-            List<Album> albums = albumService.findAll();
-            model.addAttribute("albums", albums);
-            model.addAttribute("song", song);
-            return "add-song";
 
+        Song song = songService.findById(id).orElse(null);
+        if(song != null){
+            model.addAttribute("song",song);
+            model.addAttribute("albums",albumService.findAll());
+            return "add-song";
         }
+
         return "redirect:/songs?error=SongNotFound";
     }
 
     @GetMapping("/add-form")
     public String getAddSongPage(Model model){
-        List<Album> albums = albumService.findAll();
-        model.addAttribute("albums", albums);
+        model.addAttribute("albums", albumService.findAll());
         return "add-song";
     }
 
     @GetMapping("/song-details/{id}")
     public String songDetails(Model model, @PathVariable Long id){
-        if(songService.findById(id).isPresent()){
-            Song song = songService.findById(id).get();
+        Song song = songService.findById(id).orElse(null);
+        if(song != null){
             model.addAttribute("song", song);
             return "songDetails";
         }

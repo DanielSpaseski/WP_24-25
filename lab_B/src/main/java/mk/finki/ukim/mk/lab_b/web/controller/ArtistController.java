@@ -1,6 +1,8 @@
 package mk.finki.ukim.mk.lab_b.web.controller;
 
+import jakarta.servlet.http.HttpSession;
 import mk.finki.ukim.mk.lab_b.model.Artist;
+import mk.finki.ukim.mk.lab_b.model.Song;
 import mk.finki.ukim.mk.lab_b.service.ArtistService;
 import mk.finki.ukim.mk.lab_b.service.SongService;
 import org.springframework.stereotype.Controller;
@@ -23,18 +25,20 @@ public class ArtistController {
         this.songService = songService;
     }
 
-    @GetMapping("/artist-to-song")
-    public String artistToSong(Model model, @RequestParam Long songId){
+    @GetMapping
+    public String ArtistPage(Model model) {
         List<Artist> artists = artistService.listArtists();
         model.addAttribute("artists", artists);
-        model.addAttribute("songId", songId);
         return "artistsList";
     }
 
-    @PostMapping("/artist-to-song")
-    public String artistToSong(@RequestParam Long songId, @RequestParam Long artistId){
-        songService.addArtistToSong(artistId,songId);
-        return "redirect:/songs/song-details/" + songId;
+    @PostMapping("/addArtist")
+    public String addArtist(@RequestParam Long artistID, HttpSession session){
+        Artist artist = artistService.findById(artistID);
+        Song song = (Song) session.getAttribute("song");
+
+        // session.setAttribute("artists", songService.addArtistToSong(artist, song));
+        return "redirect:/songDetailsPage";
     }
 
 

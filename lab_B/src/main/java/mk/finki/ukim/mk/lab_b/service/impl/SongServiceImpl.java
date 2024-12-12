@@ -3,25 +3,26 @@ package mk.finki.ukim.mk.lab_b.service.impl;
 import mk.finki.ukim.mk.lab_b.model.Album;
 import mk.finki.ukim.mk.lab_b.model.Artist;
 import mk.finki.ukim.mk.lab_b.model.Song;
-import mk.finki.ukim.mk.lab_b.repository.AlbumRepository;
-import mk.finki.ukim.mk.lab_b.repository.ArtistRepository;
-import mk.finki.ukim.mk.lab_b.repository.SongRepository;
+import mk.finki.ukim.mk.lab_b.model.exceptions.NoAlbumFoundException;
+import mk.finki.ukim.mk.lab_b.model.exceptions.NoSongFoundException;
+import mk.finki.ukim.mk.lab_b.repository.InMemoryAlbumRepository;
+import mk.finki.ukim.mk.lab_b.repository.InMemoryArtistRepository;
+import mk.finki.ukim.mk.lab_b.repository.InMemorySongRepository;
+import mk.finki.ukim.mk.lab_b.repository.jpa.AlbumRepository;
+import mk.finki.ukim.mk.lab_b.repository.jpa.SongRepository;
 import mk.finki.ukim.mk.lab_b.service.SongService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class SongServiceImpl implements SongService {
     private final SongRepository songRepository;
-    private final ArtistRepository artistRepository;
     private final AlbumRepository albumRepository;
 
-    public SongServiceImpl(SongRepository songRepository, ArtistRepository artistRepository, AlbumRepository albumRepository){
+    public SongServiceImpl(SongRepository songRepository, AlbumRepository albumRepository){
         this.songRepository = songRepository;
-        this.artistRepository = artistRepository;
         this.albumRepository = albumRepository;
     }
     @Override
@@ -29,31 +30,10 @@ public class SongServiceImpl implements SongService {
         return songRepository.findAll();
     }
 
-    @Override
-    public void addArtistToSong(Long artistId, Long songId) {
-        Artist artist = artistRepository.findById(artistId).orElse(null);
-        Song song = songRepository.findById(songId).orElse(null);
-        addArtist(artist,song);
-    }
-    public void addArtist(Artist artist, Song song){
-        songRepository.addArtistToSong(artist,song);
-    }
 
     @Override
-    public Song findByTrackId(String trackId) {
-        return songRepository.findByTrackId(trackId);
-    }
+    public Optional<Song> findByTrackId(String trackId) { return songRepository.findByTrackId(trackId); }
 
-    @Override
-    public void saveSong(Long id, String title, String trackId, String genre, int releaseYear, Long albumId) {
-        Album album = albumRepository.findById(albumId).orElseThrow();
-        Song song = new Song(trackId,title,genre,releaseYear,album);
-        if(id!=null){
-            song.setId(id);
-            song.setPerformers(songRepository.findById(id).orElseThrow().getPerformers());
-        }
-        songRepository.saveSong(song);
-    }
 
     @Override
     public Optional<Song> findById(Long id) {
@@ -63,5 +43,28 @@ public class SongServiceImpl implements SongService {
     @Override
     public void deleteById(Long id) {
         songRepository.deleteById(id);
+    }
+
+    @Override
+    public void save(Long id, String title, String trackID, String genre, int releaseYear, Long albumID) {
+        Album album = albumRepository.findById(albumID).orElseThrow();
+        if(id == null){
+            Song newSong = new Song(trackID,title,genre,releaseYear,album);
+            songRepository.save(newSong);
+        }
+        else{
+            Song song = songRepository.findById(id).orElseThrow();
+            song.setAlbum(album);
+            song.setTitle(title);
+            song.setTrackId(trackID);
+            song.setGenre(genre);
+            song.setReleaseYear(releaseYear);
+            songRepository.save(song);
+        }
+    }
+
+    @Override
+    public List<Song> findAllByAlbum_Id(Long albumId) {
+        return songRepository.findAllByAlbum_Id(albumId);
     }
 }

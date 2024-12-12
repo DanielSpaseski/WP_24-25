@@ -13,7 +13,7 @@
         <div class="col-md-5">
             <form th:action="@{/songs/add}" method="post">
                 <div th:if="${song != null}">
-                <input id="id" type="hidden" name="id" th:value="${song.getId()}" />
+                <input id="id" type="hidden" name="id" th:value="${song.id}" />
                 </div>
                 <div class="form-group">
                     <label for="title">Song title</label>
@@ -21,7 +21,7 @@
                            class="form-control"
                            id="title"
                            name="title"
-                           th:value="(${song} != null ? ${song.getTitle()} : '')"
+                           th:value="(${song} != null ? ${song.title} : '')"
                            required
                            placeholder="Enter song title">
                 </div>
@@ -31,7 +31,7 @@
                            class="form-control"
                            id="trackId"
                            name="trackId"
-                           th:value="(${song} != null ? ${song.getTrackId()} : '')"
+                           th:value="(${song} != null ? ${song.trackId} : '')"
                            placeholder="Enter track ID">
                 </div>
                 <div class="form-group">
@@ -40,7 +40,7 @@
                            class="form-control"
                            id="genre"
                            name="genre"
-                           th:value="(${song} != null ? ${song.getGenre()} : '')"
+                           th:value="(${song} != null ? ${song.genre} : '')"
                            placeholder="Enter song genre">
                 </div>
                 <div class="form-group">
@@ -49,16 +49,16 @@
                            class="form-control"
                            id="releaseYear"
                            name="releaseYear"
-                           th:value="(${song} != null ? ${song.getReleaseYear()} : '')"
+                           th:value="(${song} != null ? ${song.releaseYear} : '')"
                            placeholder="Enter release year">
                 </div>
                 <div class="form-group">
                 <label>Album</label>
                 <select name="albumId" class="form-control">
                     <option th:each="album : ${albums}"
-                            th:value="${album.getId()}"
-                            th:text="${album.getName()}"
-                            th:selected="${song != null && song.getAlbum() != null && song.getAlbum().getId() == album.getId()}">
+                            th:value="${album.id}"
+                            th:text="${album.name}"
+                            th:selected="${song != null && song.album != null && song.album.id == album.id}">
                     </option>
                 </select>
                 </div>
