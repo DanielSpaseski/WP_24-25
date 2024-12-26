@@ -2,6 +2,7 @@ package mk.finki.ukim.mk.lab_b.web.controller;
 
 import jakarta.servlet.http.HttpSession;
 import mk.finki.ukim.mk.lab_b.model.Album;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import mk.finki.ukim.mk.lab_b.model.Song;
 import mk.finki.ukim.mk.lab_b.service.AlbumService;
@@ -51,12 +52,14 @@ public class SongController {
     }
 
     @PostMapping("delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String deleteSong(@PathVariable Long id){
         songService.deleteById(id);
         return "redirect:/songs";
     }
 
     @GetMapping("/edit-form/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String getEditSongForm(Model model,
                                   @PathVariable Long id){
 
@@ -71,6 +74,7 @@ public class SongController {
     }
 
     @GetMapping("/add-form")
+    @PreAuthorize("hasRole('ADMIN')")
     public String getAddSongPage(Model model){
         model.addAttribute("albums", albumService.findAll());
         return "add-song";
