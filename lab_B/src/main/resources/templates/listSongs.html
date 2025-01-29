@@ -68,7 +68,7 @@
                         </button>
                     </form>
                 </th:block>
-                <th:block sec:authorize="hasRole('ADMIN')">
+                <th:block sec:authorize="hasAnyRole('ADMIN','MODERATOR')">
                     <a th:href="@{'/songs/edit-form/{id}' (id=${song.getId()})}"
                        class="btn btn-sm btn-info edit-product">
                         <i class="fa fa-trash">Edit</i>

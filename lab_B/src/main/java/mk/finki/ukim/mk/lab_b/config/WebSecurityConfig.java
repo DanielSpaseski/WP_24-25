@@ -31,6 +31,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/", "/songs", "/songs/song-details/*", "/assets/**", "/register")
                         .permitAll()
+                        .requestMatchers("/", "/songs", "/songs/song-details/*", "/assets/**", "/register", "/songs/edit-form/*")
+                        .hasRole("MODERATOR")
                         .anyRequest().hasRole("ADMIN")
                 )
                 .formLogin(form -> form
@@ -59,8 +61,13 @@ public class WebSecurityConfig {
                 .password(passwordEncoder.encode("ds"))
                 .roles("USER")
                 .build();
+        UserDetails moderator = User.builder()
+                .username("moderator")
+                .password(passwordEncoder.encode("moderator"))
+                .roles("MODERATOR")
+                .build();
 
-        return new InMemoryUserDetailsManager(admin, user1);
+        return new InMemoryUserDetailsManager(admin, user1, moderator);
     }
 
 

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>WP Exam</title>
+</head>
+<body>
+
+<div>
+    <!-- The form below should invoke the method ReservationsController.listAll -->
+    <form id="filter-form" th:action="@{/}" th:method="GET">
+        <label for="guestName">Guest Name</label>
+        <input id="guestName" type="text" name="guestName"/>
+        <label for="roomType">RoomTypes</label>
+        <select id="roomType" name="roomType">
+            <option value="">All</option>
+            <!-- For each RoomType you should have one <option> like below  -->
+            <option th:each="type : ${roomTypes}"
+                    th:value="${type.name()}"
+                    th:text="${type.name()}"
+                    th:selected="${roomType != null && roomType == type.name()}"></option>
+        </select>
+        <select id="hotel" name="hotel">
+            <option value="">All</option>
+            <!-- For each Hotel you should have one <option> like below  -->
+            <option th:each="h : ${hotels}"
+                    th:value="${h.getId()}"
+                    th:text="${h.getName()}"
+                    th:selected="${hotel != null && hotel == h.getId()}"></option>
+        </select>
+        <button id="filter" type="submit">Filter</button>
+    </form>
+    <div>
+        <!-- ReservationsController.showAdd -->
+        <th:block sec:authorize="hasRole('ADMIN')">
+        <a href="/reservations/add" class="add-item">
+            Add new reservation
+        </a>
+        </th:block>
+    </div>
+    <table>
+        <tr>
+            <th>Guest Name</th>
+            <th>Date of Creation</th>
+            <th>Room Type</th>
+            <th>Hotel</th>
+            <th>Days of Stay</th>
+            <th>Actions</th>
+        </tr>
+        <!-- For each reservation you should have one <tr> like below -->
+        <tr class="item" th:each="reservation : ${page.getContent()}">
+            <td th:text="${reservation.getGuestName()}"></td>
+            <td th:text="${reservation.getDateCreated()}"></td>
+            <td th:text="${reservation.getRoomType()}"></td>
+            <td th:text="${reservation.getHotel().getName()}"></td>
+            <td th:text="${reservation.getDaysOfStay()}"></td>
+            <td>
+                <!-- ReservationsController.delete -->
+                <th:block sec:authorize="hasRole('ADMIN')">
+                <form th:action="@{'/reservations/delete/{id}' (id=${reservation.getId()})}"
+                      th:method="POST">
+                    <button type="submit" class="delete-item">Delete</button>
+                </form>
+                </th:block>
+                <!-- ReservationsController.showEdit -->
+                <th:block sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{'/reservations/edit/{id}' (id=${reservation.getId()})}" class="edit-item">Edit</a>
+                </th:block>
+                <!-- ReservationsController.extend -->
+                <th:block sec:authorize="hasRole('USER')">
+                <form th:action="@{'/reservations/extend/{id}' (id=${reservation.getId()})}"
+                      th:method="POST">
+                    <button type="submit" class="extend-item">Extend stay</button>
+                </form>
+                </th:block>
+            </td>
+        </tr>
+    </table>
+    <div th:include="paging :: pageSection(${page})"></div>
+</div>
+<div>
+    <ul id="nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+</div>
+</body>
+</html>

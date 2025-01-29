@@ -59,7 +59,7 @@ public class SongController {
     }
 
     @GetMapping("/edit-form/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','MODERATOR')")
     public String getEditSongForm(Model model,
                                   @PathVariable Long id){
 
